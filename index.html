@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Input Produk Elektronik - Sudut Nongkrong</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <main class="container">
+        <section class="card form-section">
+            <h2>Tambah Produk Elektronik Baru</h2>
+            
+            <!-- Form Input Interaktif -->
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="product-name">Nama Produk:</label>
+                    <input type="text" id="product-name" required placeholder="Contoh: Keyboard Mechanical Logitech G613">
+                </div>
+
+                <div class="form-group">
+                    <label for="product-category">Kategori:</label>
+                    <select id="product-category" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="HP">HP</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Mouse">Mouse</option>
+                        <option value="Earphone">Earphone</option>
+                        <option value="Powerbank">Powerbank</option>
+                        <option value="Keyboard">Keyboard</option>
+                        <option value="Wireless Charger">Wireless Charger</option>
+                        <option value="Smartwatch">Smartwatch</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-price">Harga (Rp):</label>
+                    <input type="number" id="product-price" required min="1000" placeholder="Contoh: 450000">
+                </div>
+
+                <div class="form-group">
+                    <label for="product-stock">Stok Barang:</label>
+                    <input type="number" id="product-stock" required min="0" placeholder="Contoh: 15">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Simpan ke Mock Data</button>
+            </form>
+
+            <!-- Tampilan Feedback Visual Tanpa alert() -->
+            <div id="form-feedback" class="feedback-msg"></div>
+        </section>
+
+        <!-- Live Preview Section -->
+        <section class="card preview-section">
+            <h3>Live Preview Data Produk</h3>
+            <div id="live-preview" class="preview-box">
+                <p><strong>Nama:</strong> <span id="preview-name">-</span></p>
+                <p><strong>Kategori:</strong> <span id="preview-category">-</span></p>
+                <p><strong>Harga:</strong> <span id="preview-price">-</span></p>
+                <p><strong>Stok:</strong> <span id="preview-stock">-</span></p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Baris ini yang bertugas memanggil kode JavaScript Anda secara aman -->
+    <script src="assets/js/form_handler.js"></script>
+</body>
+</html>

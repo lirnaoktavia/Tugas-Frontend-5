@@ -1,82 +1,107 @@
-// 1. Ambil seluruh elemen berdasarkan ID yang ada di HTML Anda
-const productForm = document.getElementById('product-form');
-const productName = document.getElementById('product-name');
-const productCategory = document.getElementById('product-category');
-const productPrice = document.getElementById('product-price');
-const productStock = document.getElementById('product-stock');
-const formFeedback = document.getElementById('form-feedback');
+const localProductList = [];
 
-// Elemen untuk Live Preview
-const previewName = document.getElementById('preview-name');
-const previewCategory = document.getElementById('preview-category');
-const previewPrice = document.getElementById('preview-price');
-const previewStock = document.getElementById('preview-stock');
+const formatRupiah = (number) => {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
+};
 
-// 2. Fungsi Live Preview Data Produk (Otomatis berubah saat mengetik/memilih)
-function updatePreview() {
-    previewName.textContent = productName.value || "-";
-    previewCategory.textContent = productCategory.value || "-";
-    previewStock.textContent = productStock.value || "-";
-    
-    if (productPrice.value) {
-        // Format mata uang rupiah untuk harga produk
-        previewPrice.textContent = "Rp " + parseInt(productPrice.value).toLocaleString('id-ID');
-    } else {
-        previewPrice.textContent = "-";
+const calculateStockValuation = (products) => {
+  let totalValuation = 0;
+  for (const product of products) {
+    totalValuation += product.price * product.stock;
+  }
+  return totalValuation;
+};
+
+const renderProductList = () => {
+  const productListEl = document.getElementById('product-list');
+  const valuationEl = document.getElementById('total-valuation');
+  
+  if (localProductList.length === 0) {
+    productListEl.innerHTML = '<li class="empty-msg">Belum ada produk tersimpan.</li>';
+    valuationEl.textContent = formatRupiah(0);
+    return;
+  }
+
+  productListEl.innerHTML = localProductList.map((product) => `
+    <li class="product-item">
+      <div class="product-info">
+        <strong>${product.name}</strong>
+        <small>${product.category} • ${formatRupiah(product.price)} (Stok: ${product.stock})</small>
+      </div>
+      <span class="product-id">ID: #${product.id}</span>
+    </li>
+  `).join('');
+
+  const currentValuation = calculateStockValuation(localProductList);
+  valuationEl.textContent = formatRupiah(currentValuation);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('product-form');
+  const feedback = document.getElementById('form-feedback');
+  
+  const inputName = document.getElementById('product-name');
+  const inputCategory = document.getElementById('product-category');
+  const inputPrice = document.getElementById('product-price');
+  const inputStock = document.getElementById('product-stock');
+
+  const prevName = document.getElementById('prev-name');
+  const prevCategory = document.getElementById('prev-category');
+  const prevPrice = document.getElementById('prev-price');
+  const prevStock = document.getElementById('prev-stock');
+
+  inputName.addEventListener('input', (e) => {
+    prevName.textContent = e.target.value.trim() || 'Nama Produk...';
+  });
+
+  inputCategory.addEventListener('change', (e) => {
+    prevCategory.textContent = e.target.value || '-';
+  });
+
+  inputPrice.addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    prevPrice.textContent = !isNaN(val) && val > 0 ? formatRupiah(val) : 'Rp 0';
+  });
+
+  inputStock.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value);
+    prevStock.textContent = !isNaN(val) && val >= 0 ? val : 0;
+  });
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const nameInput = inputName.value.trim();
+    const categoryInput = inputCategory.value;
+    const priceInput = parseFloat(inputPrice.value);
+    const stockInput = parseInt(inputStock.value);
+
+    if (!nameInput || !categoryInput || isNaN(priceInput) || priceInput <= 0 || isNaN(stockInput) || stockInput < 0) {
+      feedback.textContent = "Mohon isi seluruh data produk dengan valid!";
+      feedback.className = "feedback-msg error";
+      return;
     }
-}
 
-// Pasang Event Listener agar Live Preview berjalan realtime
-productName.addEventListener('input', updatePreview);
-productCategory.addEventListener('change', updatePreview);
-productPrice.addEventListener('input', updatePreview);
-productStock.addEventListener('input', updatePreview);
-
-// 3. Handle pengiriman data (Submit Form) ke Backend Flask
-productForm.addEventListener('submit', async function(event) {
-    event.preventDefault(); // Mencegah halaman refresh otomatis
-
-    // Menyusun data sesuai dengan ALLOWED_FIELDS di product_service backend Anda
-    const payload = {
-        name: productName.value,
-        category: productCategory.value,
-        price: parseFloat(productPrice.value)
-        // Catatan: Jika ItemRepository Anda sudah mendukung field stok, bisa tambahkan: stock: parseInt(productStock.value)
+    const newProduct = {
+      id: localProductList.length + 1,
+      name: nameInput,
+      category: categoryInput,
+      price: priceInput,
+      stock: stockInput
     };
 
-    // Tampilkan feedback visual loading awal
-    formFeedback.textContent = "Sedang memproses dan menyimpan data...";
-    formFeedback.className = "feedback-msg";
-    formFeedback.style.color = "#333"; 
+    localProductList.push(newProduct);
+    console.log("Data produk berhasil ditambahkan:", newProduct);
 
-    try {
-        // Panggil endpoint backend Flask untuk item/produk Anda
-        const response = await fetch('http://127.0.0', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+    renderProductList();
 
-        const result = await response.json();
+    feedback.textContent = `Sukses! Produk '${newProduct.name}' (${formatRupiah(newProduct.price)}) tersimpan.`;
+    feedback.className = "feedback-msg success";
 
-        // Cek jika response backend sukses (status 200/201 dan JSON status "success")
-        if (response.ok && result.status === 'success') {
-            formFeedback.textContent = "✓ Produk berhasil disimpan ke Backend!";
-            formFeedback.style.color = "green";
-            
-            // Reset form dan tampilan live preview ke kondisi awal (-)
-            productForm.reset();
-            updatePreview();
-        } else {
-            // Menampilkan pesan error validasi dari Flask (misal nama kosong, harga minus)
-            formFeedback.textContent = `❌ Gagal menyimpan: ${result.message || 'Terjadi kesalahan sistem'}`;
-            formFeedback.style.color = "red";
-        }
-    } catch (error) {
-        // Error handling jika server backend Flask mati / CORS diblokir
-        formFeedback.textContent = "❌ Terjadi kesalahan! Pastikan server backend Flask (app.py) Anda sudah dijalankan.";
-        formFeedback.style.color = "red";
-    }
+    form.reset();
+    prevName.textContent = 'Nama Produk...';
+    prevCategory.textContent = '-';
+    prevPrice.textContent = 'Rp 0';
+    prevStock.textContent = '0';
+  });
 });

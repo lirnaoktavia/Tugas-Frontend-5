@@ -12,7 +12,6 @@
         <section class="card form-section">
             <h2>Tambah Produk Elektronik Baru</h2>
             
-            <!-- Form Input Interaktif -->
             <form id="product-form">
                 <div class="form-group">
                     <label for="product-name">Nama Produk:</label>
@@ -47,23 +46,31 @@
                 <button type="submit" class="btn btn-primary">Simpan ke Mock Data</button>
             </form>
 
-            <!-- Tampilan Feedback Visual Tanpa alert() -->
             <div id="form-feedback" class="feedback-msg"></div>
         </section>
 
-        <!-- Live Preview Section -->
         <section class="card preview-section">
-            <h3>Live Preview Data Produk</h3>
+            <h3>Live Preview Input</h3>
             <div id="live-preview" class="preview-box">
-                <p><strong>Nama:</strong> <span id="preview-name">-</span></p>
-                <p><strong>Kategori:</strong> <span id="preview-category">-</span></p>
-                <p><strong>Harga:</strong> <span id="preview-price">-</span></p>
-                <p><strong>Stok:</strong> <span id="preview-stock">-</span></p>
+                <p class="preview-title"><strong id="prev-name">Nama Produk...</strong></p>
+                <p class="preview-category">Kategori: <span id="prev-category">-</span></p>
+                <p class="preview-price">Harga: <span id="prev-price">Rp 0</span> | Stok: <span id="prev-stock">0</span> pcs</p>
             </div>
+            
+            <hr class="divider">
+            
+            <h3>Daftar Produk Tersimpan & Agregasi</h3>
+            <div class="summary-box">
+                <p>Total Valuasi Stok: <strong id="total-valuation">Rp 0</strong></p>
+            </div>
+
+            <ul id="product-list" class="product-list">
+                <li class="empty-msg">Belum ada produk tersimpan.</li>
+            </ul>
         </section>
     </main>
 
-    <!-- Baris ini yang bertugas memanggil kode JavaScript Anda secara aman -->
+    <!-- Skrip JavaScript penanganan form -->
     <script src="assets/js/form_handler.js"></script>
 </body>
 </html>
